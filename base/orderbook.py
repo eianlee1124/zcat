@@ -14,7 +14,7 @@ SSLOPT = {"cert_reqs": ssl.CERT_NONE}
 
 
 def is_reverse(side):
-    return side == BID # False if side == ASK else True
+    return side == BID # False if side == ASK else True와 같음.
 
 
 class Order(collections.OrderedDict):
