@@ -13,6 +13,10 @@ DEPTH = 10
 SSLOPT = {"cert_reqs": ssl.CERT_NONE}
 
 
+def is_reverse(side):
+    return side == BID # False if side == ASK else True
+
+
 class Order(collections.OrderedDict):
     pass
 
