@@ -1,41 +1,58 @@
 #!/usr/bin/env python3
 
+
 import logging
-from _collections_abc import Set
+from datetime import datetime
 from functools import wraps
+from pprint import pformat
 
 from sortedcontainers.sorteddict import SortedDict, SortedSet
 
-from utils import generate_asks, generate_bids
 from defines import ASK, BID, DEFAULT_DEPTH
-
-logging.basicConfig(
-  format = '%(asctime)s: %(levelname)s: %(message)s',
-  datefmt = '[%Y-%d-%m  %I:%M:%S]',
-  level = logging.INFO
-)
-
-logger = logging.getLogger(__name__)
-
-def log_decorator(func):
-    """Flow control 확인용 logger decorator 함수."""
-    logger = logging.getLogger(__name__)
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            logger.info("<%s> %s %s" % (
-                func.__name__.capitalize(),
-                args[0], args[1]
-            ))
-            func(*args, **kwargs)
-        except Exception as e:
-            logger.debug("Exception {}".format(e))
-            raise e
-    return wrapper
+from utils import generate_asks, generate_bids, timing
 
 
-class OrderBook(object):
-    """정렬된 상태를 유지하는 OrderBook 클래스.
+
+class Price(float):
+    """Price field object. inherite from `float`
+    """
+    __slots__ = ('value')
+
+    def __init__(self, value=0.0):
+        self.value = value or float(value)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.value)
+
+
+class Amount(float):
+    """Amount field object. inherite from `float`
+    """
+    __slots__ = ('value')
+
+    def __init__(self, value=0.0):
+        self.value = value or float(value)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.value)
+
+
+class DateTime(object):
+    """DateTime filed object.
+    """
+    __slots__ = ('value')
+    
+    def __init__(self, value=None):
+        self.value = value or datetime.now()
+        
+    def __repr__(self):
+        return "%s(%s)" % (
+            self.__class__.__name__,
+            self.value.strftime('%Y-%m-%d %H:%M:%S%f')
+        )
+
+class Order(object):
+    """정렬된 상태를 유지하며 주문 로직을 처리하기 위한 클래스.
     """
     
     __slots__ = ('side', 'store', 'order', 'prices', 'quotes')
@@ -54,11 +71,9 @@ class OrderBook(object):
         return len(self.quotes)
         
     def __repr__(self):
-        ret = ''
+        ret = ""
         for price, amount in self.quotes:
-            ret += '%s(Price(%s): Amount(%s))\n' % (
-                self.side, price, amount
-            )
+            ret += '%s: %s\n' % (price, amount)
         return ret
     
     @staticmethod
@@ -78,6 +93,7 @@ class OrderBook(object):
         """ 
         return self.quotes[0 if self.side == BID else -1][0]
     
+    
     def update(self, price, amount):
         """기존의 주문을 갱신한다.
         
@@ -86,6 +102,7 @@ class OrderBook(object):
         """
         self.order[price] = amount
         self.store.add(price)
+    
     
     def insert(self, price, amount):
         """새로운 주문을 삽입한다.
@@ -99,7 +116,7 @@ class OrderBook(object):
                 
         self.order[price] = amount
         self.store.add(price)
-        islice(10)
+        islice(DEFAULT_DEPTH)
 
     def discard(self, price):
         """기존의 주문을 삭제한다.
@@ -131,33 +148,62 @@ class OrderBook(object):
             return old_price < new_price if self.side == BID else new_price <  old_price
         
         assert side == self.side    # 잘못된 매수 또는 매도주문을 처리하려는 경우
+
         if amount == 0:
-            self.remove(price)
+            self.discard(price)
         elif price in self.store:
             self.update(price, amount)
         elif is_updatable(price):
             self.insert(price, amount)
-            
+
+        
         if debug:
             print(self)
-                
-if __name__ == "__main__":
-    print("=" * 40 + "테스트 시작" + "=" * 40)
-    asks = OrderBook(ASK)
-    bids = OrderBook(BID)
-    
-    generate_asks(asks, start=7200, depth=10, debug=False)
-    generate_bids(bids, start=7200, depth=10, debug=False)
-    assert len(asks) == DEFAULT_DEPTH  # islice 테스트
-    assert len(bids) == DEFAULT_DEPTH  # islice 테스트
-    
-    asks.process(ASK, 7200, 1000, debug=False)   # update 테스트
-    bids.process(BID, 7199, 1000, debug=False)   # update 테스트 
-    assert 7200 in asks # min price 테스트
-    assert 7209 in asks and 7209 == asks.worst_offer # max price 테스트     
-    
-    assert 7199 in bids # max price 테스트
-    assert 7190 in bids and 7190 == bids.worst_offer # min price 테스트
+            
+            
 
-    print("=" * 40 + "테스트 종료" + "=" * 40)
+class OrderBook(dict):
+    """정렬된 상태를 유지하며 주문 정보를 담는 컨테이너 클래스.
     
+    - builtin class `dict`로 부터 상속받음.
+    - `__slots__`을 사용하여 `__dict__`를 생성하지 않음.
+    """
+    
+    __slots__ = ('asks', 'bids')
+    
+    def __init__(self):
+        self.asks = Order(ASK)
+        self.bids = Order(BID)
+        super().__init__(asks=self.asks, bids=self.bids)
+    
+    def __repr__(self):
+        return "== Ask == \n%s\n== Bid ==\n%s" % (self.asks, self.bids)
+        
+    def process(self, side, price, amount):
+        """매수, 매도에 관계 없이 삽입, 갱신, 삭제 로직을 처리한다.
+        """
+        order = self.bids if side == BID else self.asks
+        order.process(side, price, amount)
+        
+            
+
+                
+# if __name__ == "__main__":
+#     print("=" * 40 + "테스트 시작" + "=" * 40)
+#     asks = Order(ASK)
+#     bids = Order(BID)
+    
+#     generate_asks(asks, start=7200, depth=10, debug=False)
+#     generate_bids(bids, start=7200, depth=10, debug=False)
+#     assert len(asks) == DEFAULT_DEPTH  # islice 테스트
+#     assert len(bids) == DEFAULT_DEPTH  # islice 테스트
+    
+#     asks.process(ASK, 7200, 1000, debug=False)   # update 테스트
+#     bids.process(BID, 7199, 1000, debug=False)   # update 테스트 
+#     assert 7200 in asks # min price 테스트
+#     assert 7209 in asks and 7209 == asks.worst_offer # max price 테스트     
+    
+#     assert 7199 in bids # max price 테스트
+#     assert 7190 in bids and 7190 == bids.worst_offer # min price 테스트
+
+#     print("=" * 40 + "테스트 종료" + "=" * 40)
