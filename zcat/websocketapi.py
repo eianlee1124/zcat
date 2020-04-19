@@ -24,8 +24,8 @@ class WebSocketAPI(object):
             await websocket.send(json.dumps(self.payload))
             
             while True:
-                # 비동기가 아닌 경우 수신된 메시지가 없을 때 sleep을 해줘야 하는데,
-                # await 키워드를 사용하면 안해줘도 되는건지?
+                # XXX: 비동기가 아닌 경우 수신된 메시지가 없을 때 sleep을 해줘야 GIL이 해제되는데 반해,
+                # await 키워드를 사용하는 경우는 어떻게 되는 건지?
                 message = await websocket.recv()
                 await self.message_handler(message)
                 print(self.l2_book)
