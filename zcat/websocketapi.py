@@ -20,7 +20,7 @@ class WebSocketAPI(object):
         self.url = url
         self.payload = payload
         self.pair = pair
-        self.l2_book = OrderBook()
+        self.l2_book = OrderBook(self.pair)
         
     async def connect(self):
         async with websockets.connect(self.url) as websocket:

@@ -14,8 +14,7 @@ from websocketapi import WebSocketAPI
 class Upbit(WebSocketAPI):
     
     def __init__(self, pair, url, payload):
-        base, quote = pair.split('/')
-        self.pair = "{}-{}".format(quote, base)
+        self.pair = "{1}-{0}".format(*pair.split('/'))
         self.url = url
         self.payload = payload
         self.payload[0]['ticket'] = 'UPBIT' + str(uuid.uuid4())
