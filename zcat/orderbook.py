@@ -201,6 +201,9 @@ class OrderBook(dict):
         order = self.bids if side == BID else self.asks
         return price in order
     
+    def __str__(self):
+        return "== BID == \n%s\n== ASK == \n%s" % (self.bids, self.asks)
+    
     def __repr__(self):
         return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
     

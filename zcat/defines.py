@@ -32,4 +32,4 @@ ASK = 'asks'
 BID = 'bids'
 PRICE = 'price'
 AMOUNT = 'amount'
-DEFAULT_DEPTH = 25
+DEFAULT_DEPTH = 10

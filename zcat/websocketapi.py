@@ -4,12 +4,15 @@
 import abc
 import asyncio
 import json
+import sys
 
 import websockets
 
 from defines import ASK, BID
 from orderbook import OrderBook
 
+write = sys.stdout.write
+flush = sys.stdout.flush
 
 class WebSocketAPI(object):
     
@@ -28,7 +31,8 @@ class WebSocketAPI(object):
                 # await 키워드를 사용하는 경우는 어떻게 되는 건지?
                 message = await websocket.recv()
                 await self.message_handler(message)
-                print(self.l2_book)
+                write(repr(self.l2_book))
+                flush()
                 
                 
     def run(self):
