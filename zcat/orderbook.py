@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-from operator import neg
 from datetime import datetime
 
 from sortedcontainers.sorteddict import SortedDict

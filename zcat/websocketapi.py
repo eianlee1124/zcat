@@ -3,13 +3,12 @@
 
 import abc
 import asyncio
-from asyncio import CancelledError
 import json
 
 import websockets
 
 from defines import ASK, BID
-from orderbook import Amount, OrderBook, Price
+from orderbook import OrderBook
 
 
 class WebSocketAPI(object):
