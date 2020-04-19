@@ -26,7 +26,7 @@ class Kraken(WebSocketAPI):
                     for update in updates:
                         price, amount = Price(update[0]), Amount(update[1])
                         side = BID if key.startswith('b') else ASK
-                        self.l2_book.process(side, price, amount) # 크라켄은 그냥 l2_book.process로 처리한다.
+                        self.l2_book.process(side, price, amount) # 크라켄은 스냅샷부터 모든 메시지를 l2_book.process로 처리한다.
                         
 
 if __name__ == "__main__":
