@@ -125,7 +125,7 @@ class Order(object):
         - 삽입 이벤트 (거래소마다 상이)
         - `price`가 인-메모리 오더북의 멤버가 아닌 경우
         """
-        def islice(depth=10):
+        def islice(depth=DEFAULT_DEPTH):
             while len(self.quotes) > depth: 
                 self.discard(self.worst_offer)
                 
@@ -202,7 +202,7 @@ class OrderBook(dict):
         return price in order
     
     def __repr__(self):
-        return "== Ask == \n%s\n== Bid ==\n%s" % (self.asks, self.bids)
+        return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
     
     def is_empty(self) -> bool:
         return bool(self.asks and self.bids)
