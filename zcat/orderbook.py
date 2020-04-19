@@ -24,7 +24,7 @@ class Price(float):
         return "%s('%.8f')" % (self.__class__.__name__, self.value)
         
     def __neg__(self):
-        return Price(neg(self.value))
+        return Price(-self.value)
     
     def __abs__(self):
         return Price(abs(self.value))
@@ -44,11 +44,10 @@ class Amount(float):
         return "%s('%.8f')" % (self.__class__.__name__, self.value)
     
     def __neg__(self):
-        return Amount(neg(self.value))
+        return Amount(-self.value)
     
     def __abs__(self):
         return Amount(abs(self.value))
-
 
 
     

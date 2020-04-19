@@ -16,7 +16,7 @@ class Price(float):
         self.value = value
 
     def __repr__(self):
-        return "\r%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s('%.8f')" % (self.__class__.__name__, self.value)
         
     def __neg__(self):
         return Price(-self.value)
@@ -36,7 +36,7 @@ class Amount(float):
         self.value = value
 
     def __repr__(self):
-        return "\r%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s('%.8f')" % (self.__class__.__name__, self.value)
     
     def __neg__(self):
         return Amount(-self.value)
@@ -47,8 +47,7 @@ class Amount(float):
 
 if __name__ == "__main__":
     pos_price = Price(7200.1234)
-    assert Price(7200.1234) == neg(-7200.1234) == neg(Price(-7200.1234)) == Price(neg(-7200.1234)) == abs(Price(-7200.1234)) == pos_price # positive 테스트
-    
+    assert neg(-7200.1234) == neg(Price(-7200.1234)) == Price(neg(-7200.1234)) == abs(Price(-7200.1234)) == pos_price # positive 테스트
     assert Price('1000.1234') == 1000.1234000       # str == float 테스트
     assert Price('1000.1234') != 1000.123400000001  # str != float 테스트
     assert Price(1000) != 1000.0000001              # int != float 테스트
