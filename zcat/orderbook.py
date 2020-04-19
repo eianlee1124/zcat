@@ -2,6 +2,7 @@
 
 
 from datetime import datetime
+from collections import defaultdict
 
 from sortedcontainers.sorteddict import SortedDict
 
@@ -191,13 +192,10 @@ class OrderBook(dict):
     
     __slots__ = ('asks', 'bids')
     
-    def __init__(self):
+    def __init__(self, pair):
         self.asks = Order(ASK)
         self.bids = Order(BID)
-        super().__init__(asks=self.asks, bids=self.bids)
-    
-    def __str__(self):
-        return "== BID == \n%s\n== ASK == \n%s" % (self.bids, self.asks)
+        super().__init__({pair: {ASK: self.asks, BID: self.bids}})
     
     def __repr__(self):
         return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
@@ -229,8 +227,6 @@ class OrderBook(dict):
         order = self.bids if side == BID else self.asks
         order.process(side, price, amount)
         
-            
-
                 
 # if __name__ == "__main__":
 #     print("=" * 40 + "테스트 시작" + "=" * 40)
