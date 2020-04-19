@@ -1,10 +1,9 @@
-import logging
-from operator import neg
-from datetime import datetime
-from functools import wraps
-from pprint import pformat
+#!/usr/bin/env python3
 
-from sortedcontainers.sorteddict import SortedDict, SortedSet
+
+from datetime import datetime
+
+from sortedcontainers.sorteddict import SortedDict
 
 from defines import ASK, BID, DEFAULT_DEPTH
 from utils import generate_asks, generate_bids, timing
