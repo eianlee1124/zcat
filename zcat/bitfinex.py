@@ -35,9 +35,9 @@ class Bitfinex(WebSocketAPI):
         """
         message = json.loads(message)
         if isinstance(message, list):
-            message = message[1]
-            if len(message) == 50:
-                for msg in message:
+            if isinstance(message[1][0], list):
+                # snapshot
+                for msg in message[1]:
                     price, amount = Price(msg[0]), Amount(msg[2])
                     if amount > 0:
                         side = BID
@@ -45,9 +45,21 @@ class Bitfinex(WebSocketAPI):
                         side = ASK
                         amount = abs(amount)
                     self.l2_book.process(side, price, amount)
-            else:
-                pass
-            
+            elif message[1] != 'hb':
+                # update
+                price, count, amount = Price(message[1][0]), message[1][1], Amount(message[1][2])
+                
+                if amount > 0:
+                    side = BID
+                else:
+                    side = ASK
+                    amount = abs(amount)
+                    
+                if count > 0:
+                    self.l2_book.process(side, price, amount)
+                else:
+                    self.l2_book.discard(side, price)
+
     
 if __name__ == "__main__":
     bitfinex = Bitfinex("BTC/USD", config.URL, config.PAYLOAD)

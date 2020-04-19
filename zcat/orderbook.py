@@ -205,6 +205,9 @@ class OrderBook(dict):
     def __repr__(self):
         return "== Ask == \n%s\n== Bid ==\n%s" % (self.asks, self.bids)
     
+    def is_empty(self) -> bool:
+        return bool(self.asks and self.bids)
+    
     def update(self, side, price, amount):
         """매수, 매도에 관계없이 인-메모리 오더북의 주문을 갱신한다.
         """

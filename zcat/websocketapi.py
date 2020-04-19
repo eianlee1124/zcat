@@ -3,6 +3,7 @@
 
 import abc
 import asyncio
+from asyncio import CancelledError
 import json
 
 import websockets
@@ -28,7 +29,9 @@ class WebSocketAPI(object):
                 # await 키워드를 사용하는 경우는 어떻게 되는 건지?
                 message = await websocket.recv()
                 await self.message_handler(message)
-        
+                print(self.l2_book)
+                
+                
     def run(self):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.connect())
