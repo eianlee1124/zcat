@@ -10,7 +10,6 @@ from defines import ASK, BID, DEFAULT_DEPTH
 from utils import generate_asks, generate_bids, timing
 
 
-
 class Price(float):
     """Price field object. inherite from `float`
     """
@@ -26,6 +25,9 @@ class Price(float):
         
     def __neg__(self):
         return Price(-self.value)
+    
+    def __abs__(self):
+        return Price(abs(self.value))
     
     
 class Amount(float):
@@ -43,6 +45,10 @@ class Amount(float):
     
     def __neg__(self):
         return Amount(-self.value)
+    
+    def __abs__(self):
+        return Amount(abs(self.value))
+
 
 
     
