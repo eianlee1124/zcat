@@ -1,0 +1,31 @@
+"""
+최종적으로 아래와 같은 구조로 예상
+"""
+
+- Exchange:
+  - Bitfinex:
+    - OrderBook:
+      - pair:
+        - asks:
+          - orders:
+            - price[0], amount[0]:
+            - price[1], amount[1]:
+            - ...
+        - bids:
+          - orders:
+            - price[0], amount[0]:
+            - price[1], amount[1]:
+            - ...
+  - Kraken:
+    - OrderBook:
+      - pair:
+        - asks:
+          - orders:
+            - price[0], amount[0]:
+            - price[1], amount[1]:
+            - ...
+        - bids:
+          - orders:
+            - price[0], amount[0]:
+            - price[1], amount[1]:
+            - ...
