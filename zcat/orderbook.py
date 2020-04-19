@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-from operator import neg
 from datetime import datetime
 
 from sortedcontainers.sorteddict import SortedDict
@@ -126,7 +125,7 @@ class Order(object):
         - 삽입 이벤트 (거래소마다 상이)
         - `price`가 인-메모리 오더북의 멤버가 아닌 경우
         """
-        def islice(depth=10):
+        def islice(depth=DEFAULT_DEPTH):
             while len(self.quotes) > depth: 
                 self.discard(self.worst_offer)
                 
@@ -166,7 +165,7 @@ class Order(object):
                 return True
 
             old_price = self.worst_offer
-            return old_price < new_price if self.side == BID else new_price <  old_price
+            return old_price < new_price if self.side == BID else new_price < old_price
         
         assert side == self.side    # 잘못된 매수 또는 매도주문을 처리하려는 경우
 
@@ -196,14 +195,12 @@ class OrderBook(dict):
         self.asks = Order(ASK)
         self.bids = Order(BID)
         super().__init__(asks=self.asks, bids=self.bids)
-        
-    def __contains__(self, data):
-        price, side = data
-        order = self.bids if side == BID else self.asks
-        return price in order
+    
+    def __str__(self):
+        return "== BID == \n%s\n== ASK == \n%s" % (self.bids, self.asks)
     
     def __repr__(self):
-        return "== Ask == \n%s\n== Bid ==\n%s" % (self.asks, self.bids)
+        return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
     
     def is_empty(self) -> bool:
         return bool(self.asks and self.bids)

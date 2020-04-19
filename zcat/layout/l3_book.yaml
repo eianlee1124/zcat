@@ -1,0 +1,26 @@
+"L3 OrderBook layout example
+
+매우 복잡하므로 상용화 단계에서 실현가능할듯.
+L3 OrderBook안에 L2 OrderBook 객체가 여러개 들어있는 형태
+"
+
+
+L3 OrderBook:
+  - BTC/USD:
+    - ASK:
+      - Price(7200):
+        - price(7200.0), amount(0.1):
+        - price(7200.1), amount(1.01):
+        - price(7200.2), amount(2.001):
+        - ...
+    - BID:
+      - Price(7100):
+        - price(7100.9), amount(-1.0):
+        - price(7100.8), amount(-2.0):
+        - price(7100.7), amount(-3.0):
+        - ...
+  - ETH/USD:
+    - ...
+  - XRP/EUR:
+    - ...
+

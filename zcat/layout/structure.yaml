@@ -1,5 +1,9 @@
 """
-최종적으로 아래와 같은 구조로 예상
+L2 OrderBook인 경우 최종적으로 아래와 같은 구조로 예상됨
+
+- Thoughts
+  - 최상위의 Exchange는 싱글스레드에서 전역변수를 사용하는 것처럼 쓸듯?
+  - 파이썬 빌트인 리스트가 thread-safe이므로 아마 리스트 쓰면 될 것 같음
 """
 
 - Exchange:
@@ -18,7 +22,7 @@
             - ...
   - Kraken:
     - OrderBook:
-      - pair:
+      - pair[0]:
         - asks:
           - orders:
             - price[0], amount[0]:
@@ -29,3 +33,5 @@
             - price[0], amount[0]:
             - price[1], amount[1]:
             - ...
+      - pair[1]:
+        ...

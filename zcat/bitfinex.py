@@ -46,7 +46,7 @@ class Bitfinex(WebSocketAPI):
                         amount = abs(amount)
                     self.l2_book.process(side, price, amount)
             elif message[1] != 'hb':
-                # update
+                # orderbook update
                 price, count, amount = Price(message[1][0]), message[1][1], Amount(message[1][2])
                 
                 if amount > 0:
@@ -56,8 +56,10 @@ class Bitfinex(WebSocketAPI):
                     amount = abs(amount)
                     
                 if count > 0:
+                    # add or update
                     self.l2_book.process(side, price, amount)
                 else:
+                    # remove
                     self.l2_book.discard(side, price)
 
     
