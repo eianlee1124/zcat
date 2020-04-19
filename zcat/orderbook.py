@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+from operator import neg
 from datetime import datetime
 
 from sortedcontainers.sorteddict import SortedDict
@@ -20,10 +21,10 @@ class Price(float):
         self.value = value
 
     def __repr__(self):
-        return "\r%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s('%.8f')" % (self.__class__.__name__, self.value)
         
     def __neg__(self):
-        return Price(-self.value)
+        return Price(neg(self.value))
     
     def __abs__(self):
         return Price(abs(self.value))
@@ -40,10 +41,10 @@ class Amount(float):
         self.value = value
 
     def __repr__(self):
-        return "\r%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s('%.8f')" % (self.__class__.__name__, self.value)
     
     def __neg__(self):
-        return Amount(-self.value)
+        return Amount(neg(self.value))
     
     def __abs__(self):
         return Amount(abs(self.value))

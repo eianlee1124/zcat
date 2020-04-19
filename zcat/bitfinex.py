@@ -43,15 +43,10 @@ class Bitfinex(WebSocketAPI):
                         side = BID
                     else:
                         side = ASK
-                        amount = Amount(neg(amount))
+                        amount = abs(amount)
                     self.l2_book.process(side, price, amount)
-            price, count, amount = message
-            price, amount = Price(price), Amount(amount)
-            if side > 0:
-                side = BID
             else:
-                side = ASK
-                amount = Amount(neg(amount))
+                pass
             
     
 if __name__ == "__main__":
