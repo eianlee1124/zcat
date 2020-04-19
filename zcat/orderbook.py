@@ -17,7 +17,9 @@ class Price(float):
     __slots__ = ('value')
     
     def __init__(self, value=0.0):
-        self.value = value or float(value)
+        if isinstance(value, (int, str)):
+            value = float(value)
+        self.value = value
 
     def __repr__(self):
         return "\r%s('%.8f')" % (self.__class__.__name__, self.value)
@@ -41,6 +43,7 @@ class Amount(float):
     
     def __neg__(self):
         return Amount(-self.value)
+
 
     
 class DateTime(object):
@@ -67,8 +70,8 @@ class Order(object):
         self.side = side
         self.store = set()
         self.order = SortedDict()
-        self.prices = self.order.keys()
-        self.quotes = self.order.items()
+        self.prices = self.order.keys()     # dtype -> SortedKeysView
+        self.quotes = self.order.items()    # dtype -> SortedItemsView
         
     def __contains__(self, price):
         """Runtime complexity: `O(1)`
@@ -96,27 +99,27 @@ class Order(object):
     def worst_offer(self):
         """각 주문타입에 따라 스프레드에서 가장 먼 가격을 반환한다.
         
-        - ASK의 경우 인덱스 마지막 가격을 반환
-        - BID의 경우 인덱스의 처음 가격을 반환
+        - ASK: 인덱스의 마지막 가격을 반환
+        - BID: 인덱스의 처음 가격을 반환
         """ 
         return self.quotes[0 if self.side == BID else -1][0]
     
     
     def update(self, price, amount):
-        """기존의 주문을 갱신한다.
+        """아래 조건 충족 시 기존의 주문을 갱신.
         
-        - 수량이 0이 아닌경우
-        - `price`가 오더북의 멤버인 경우
+        - 업데이트 이벤트 (거래소마다 상이)
+        - `price`가 in-memoery 오더북의 멤버인 경우
         """
         self.order[price] = amount
         self.store.add(price)
     
     
     def insert(self, price, amount):
-        """새로운 주문을 삽입한다.
+        """아래 조건 충족 시 새로운 주문을 삽입 후 슬라이싱.
         
-        - 수량이 0이 아닌경우
-        - `price`가 오더북의 멤버가 아닌 경우
+        - 삽입 이벤트 (거래소마다 상이)
+        - `price`가 인-메모리 오더북의 멤버가 아닌 경우
         """
         def islice(depth=10):
             while len(self.quotes) > depth: 
@@ -127,9 +130,9 @@ class Order(object):
         islice(DEFAULT_DEPTH)
 
     def discard(self, price):
-        """기존의 주문을 삭제한다.
+        """아래 조건 충족시 기존의 주문을 삭제.
         
-        - 수량이 0인 경우
+        - 삭제 이벤트 (거래소마다 상이함)
         - `price`가 오더북의 멤버인 경우
         """
         try:
@@ -140,17 +143,20 @@ class Order(object):
     
     
     def process(self, side, price, amount, debug=False):
-        """업데이트 로직
-        - ASK의 경우 새로운 가격이 최대가격보다 작아야 업데이트
-            - i.g. new_price <= ask_max_price
-        - BID의 경우 새로운 가격이 최소가격보다 커야 업데이트 
-            - i.g. bid_min_price <= new_price
+        """인-메모리 오더북 업데이트, 추가, 제거 프로세스.
         
-        self.order의 멤버쉽 연산의 runtime complexity: `O(log N)`
+        self.order의 멤버쉽 연산 runtime complexity: `O(log N)`
         
-        self.store의 멤버쉽 연산의 runtime complexity: `O(1)`
+        self.store의 멤버쉽 연산 runtime complexity: `O(1)`
         """
         def is_updatable(new_price):
+            """
+            - ASK의 경우 새로운 가격이 최대가격 보다 작은 경우 
+                - i.g. new_price < old_price
+                
+            - BID의 경우 최소가격이 새로운 가격보다 작은 경우
+                - i.g. old_price < new_price
+            """
             if len(self) < DEFAULT_DEPTH:
                 return True
 
@@ -211,7 +217,7 @@ class OrderBook(dict):
         """
         order = self.bids if side == BID else self.asks
         order.discard(price)
-        
+    
     def process(self, side, price, amount):
         """매수, 매도에 관계없이 삽입, 갱신, 삭제 로직을 처리한다.
         """
