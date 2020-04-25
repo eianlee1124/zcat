@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+
+import asyncio
+import websockets
 from decimal import Decimal
 from operator import neg
 import ujson as json
@@ -13,13 +16,18 @@ from websocketapi import WebSocketAPI
 
 class Bitfinex(WebSocketAPI):
     
-    def __init__(self, pair, url, payload):
+    def __init__(self, pair, url=None, payload=None):
         self.pair = "t{}{}".format(*pair.split('/'))
-        self.url = url
-        self.payload = payload
+        self.url = url or config.URL
+        self.payload = payload or config.PAYLOAD
         self.payload['symbol'] = self.pair
-        super().__init__(self.pair, self.url, self.payload)
-        
+        super().__init__(pair, self.url, self.payload)
+    
+    
+    def __repr__(self):
+        return "%s(...)\n" % (self.__class__.__name__)
+    
+    
     async def message_handler(self, message):
         """Bitfinex message handler.
         
@@ -61,8 +69,6 @@ class Bitfinex(WebSocketAPI):
                 else:
                     # remove
                     self.l2_book.discard(side, price)
-
+            print(self)
     
-if __name__ == "__main__":
-    bitfinex = Bitfinex("BTC/USD", config.URL, config.PAYLOAD)
-    bitfinex.run()
+            

@@ -1,6 +1,5 @@
 from defines import DEFAULT_DEPTH
 
-
 class KRAKEN:
     URL = "wss://ws.kraken.com"
     PAYLOAD = {"event": "subscribe",
@@ -16,7 +15,7 @@ class BITFINEX:
                'channel': 'book',
                'symbol': '',
                'freq': 'F0',
-               'len': '%s' % DEFAULT_DEPTH}
+               'len': '25'}
     
 
 class UPBIT:

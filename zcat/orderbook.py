@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-
+from pprint import pformat
 from datetime import datetime
 from collections import defaultdict
 
@@ -87,10 +87,7 @@ class Order(object):
         return len(self.quotes)
         
     def __repr__(self):
-        ret = ""
-        for price, amount in self.quotes:
-            ret += '%s: %s\n' % (price, amount)
-        return ret
+        return pformat(self.order)
     
     @staticmethod
     def logger(func, *args):
@@ -196,9 +193,12 @@ class OrderBook(dict):
         self.asks = Order(ASK)
         self.bids = Order(BID)
         super().__init__({pair: {ASK: self.asks, BID: self.bids}})
-    
-    def __repr__(self):
-        return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
+        
+        
+    # def __repr__(self):
+    #     return "%s" % self.__class__.__name__
+    # def __repr__(self):
+    #     return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
     
     def is_empty(self) -> bool:
         return bool(self.asks and self.bids)
@@ -227,7 +227,6 @@ class OrderBook(dict):
         order = self.bids if side == BID else self.asks
         order.process(side, price, amount)
         
-                
 # if __name__ == "__main__":
 #     print("=" * 40 + "테스트 시작" + "=" * 40)
 #     asks = Order(ASK)
