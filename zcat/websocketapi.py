@@ -3,25 +3,39 @@
 
 import abc
 import asyncio
+import time
 import json
 import sys
-from pprint import pprint
+from socket import error as socket_error
+from pprint import pprint, pformat
 
 import websockets
+from websockets import ConnectionClosed
 
+from logger import get_logger
 from defines import ASK, BID
 from orderbook import OrderBook
+
+LOG = get_logger('WebSocketAPI', 'wss.log')
 
 write = sys.stdout.write
 flush = sys.stdout.flush
 
 class WebSocketAPI(object):
+    stores = {}
     
     def __init__(self, pair, url, payload):
         self.url = url
         self.payload = payload
         self.pair = pair
-        self.l2_book = OrderBook(self.pair)
+        self.l2_book = OrderBook(pair)
+        
+    def __repr__(self):
+        return "%s" % self.stores
+        
+    @property
+    def name(self):
+        return self.__class__.__name__
         
     async def connect(self):
         async with websockets.connect(self.url) as websocket:
@@ -32,10 +46,13 @@ class WebSocketAPI(object):
                 # await 키워드를 사용하는 경우는 어떻게 되는 건지?
                 message = await websocket.recv()
                 await self.message_handler(message)
-                
-    def run(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.connect())
+                await self.book_callback()
+        
+    async def book_callback(self):
+        name = self.name
+        book = self.l2_book
+        self.stores.update({name: book})
+        print(self)
         
     @abc.abstractmethod
     async def message_handler(self, message):

@@ -1,7 +1,7 @@
 import asyncio
-from threading import Thread
 from kraken import Kraken
 from bitfinex import Bitfinex
+
 
 def main(pair='BTC/USD'):
     feeds = []
@@ -17,16 +17,3 @@ def main(pair='BTC/USD'):
         
 if __name__ == "__main__":
     main()
-
-# def coro1(pair):
-#     kraken = Kraken(pair)
-#     yield from kraken.connect()
-    
-# def coro2(pair):
-#     bitfinex = Bitfinex(pair)
-#     yield from bitfinex.connect()
-
-# if __name__ == "__main__":
-#     loop = asyncio.get_event_loop()
-#     loop.create_task([coro1('BTC/USD'), coro2('BTC/USD')])
-#     loop.run_forever()

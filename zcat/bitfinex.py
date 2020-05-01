@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-
 import asyncio
 import websockets
 from decimal import Decimal
@@ -22,10 +19,6 @@ class Bitfinex(WebSocketAPI):
         self.payload = payload or config.PAYLOAD
         self.payload['symbol'] = self.pair
         super().__init__(pair, self.url, self.payload)
-    
-    
-    def __repr__(self):
-        return "%s(...)\n" % (self.__class__.__name__)
     
     
     async def message_handler(self, message):
@@ -69,6 +62,5 @@ class Bitfinex(WebSocketAPI):
                 else:
                     # remove
                     self.l2_book.discard(side, price)
-            print(self)
     
             

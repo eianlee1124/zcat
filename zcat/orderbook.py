@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import json
 from pprint import pformat
 from datetime import datetime
-from collections import defaultdict
 
 from sortedcontainers.sorteddict import SortedDict
 
@@ -50,21 +50,6 @@ class Amount(float):
         return Amount(abs(self.value))
 
 
-    
-class DateTime(object):
-    """DateTime filed object.
-    """
-    __slots__ = ('value')
-    
-    def __init__(self, value=None):
-        self.value = value or datetime.now()
-        
-    def __repr__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            self.value.strftime('%Y-%m-%d %H:%M:%S%f')
-        )
-
 class Order(object):
     """정렬된 상태를 유지하며 주문 로직을 처리하기 위한 클래스.
     """
@@ -78,6 +63,9 @@ class Order(object):
         self.prices = self.order.keys()     # dtype -> SortedKeysView
         self.quotes = self.order.items()    # dtype -> SortedItemsView
         
+    def __repr__(self):
+        return "%s: %s\n" % (self.side, self.order)
+        
     def __contains__(self, price):
         """Runtime complexity: `O(1)`
         """
@@ -85,17 +73,6 @@ class Order(object):
         
     def __len__(self):
         return len(self.quotes)
-        
-    def __repr__(self):
-        return pformat(self.order)
-    
-    @staticmethod
-    def logger(func, *args):
-        logger.info('\r<%s.%s> Price(%s): Amount(%s)' % (
-            func.__self__.side.capitalize(),
-            func.__name__.capitalize(),
-            args[0], args[1]
-        ))
     
     @property
     def worst_offer(self):
@@ -144,7 +121,7 @@ class Order(object):
             pass
     
     
-    def process(self, side, price, amount, debug=False):
+    def process(self, side, price, amount):
         """인-메모리 오더북 업데이트, 추가, 제거 프로세스.
         
         self.order의 멤버쉽 연산 runtime complexity: `O(log N)`
@@ -174,9 +151,6 @@ class Order(object):
         elif is_updatable(price):
             self.insert(price, amount)
 
-        
-        if debug:
-            print(self)
             
             
 
@@ -193,15 +167,9 @@ class OrderBook(dict):
         self.asks = Order(ASK)
         self.bids = Order(BID)
         super().__init__({pair: {ASK: self.asks, BID: self.bids}})
-        
-        
-    # def __repr__(self):
-    #     return "%s" % self.__class__.__name__
-    # def __repr__(self):
-    #     return "== BID == \n%s\n== ASK ==\n%s" % (self.bids, self.asks)
     
-    def is_empty(self) -> bool:
-        return bool(self.asks and self.bids)
+    def __repr__(self):
+        return repr((self.bids, self.asks))
     
     def update(self, side, price, amount):
         """매수, 매도에 관계없이 인-메모리 오더북의 주문을 갱신한다.
@@ -226,23 +194,3 @@ class OrderBook(dict):
         """
         order = self.bids if side == BID else self.asks
         order.process(side, price, amount)
-        
-# if __name__ == "__main__":
-#     print("=" * 40 + "테스트 시작" + "=" * 40)
-#     asks = Order(ASK)
-#     bids = Order(BID)
-    
-#     generate_asks(asks, start=7200, depth=10, debug=False)
-#     generate_bids(bids, start=7200, depth=10, debug=False)
-#     assert len(asks) == DEFAULT_DEPTH  # islice 테스트
-#     assert len(bids) == DEFAULT_DEPTH  # islice 테스트
-    
-#     asks.process(ASK, 7200, 1000, debug=False)   # update 테스트
-#     bids.process(BID, 7199, 1000, debug=False)   # update 테스트 
-#     assert 7200 in asks # min price 테스트
-#     assert 7209 in asks and 7209 == asks.worst_offer # max price 테스트     
-    
-#     assert 7199 in bids # max price 테스트
-#     assert 7190 in bids and 7190 == bids.worst_offer # min price 테스트
-
-#     print("=" * 40 + "테스트 종료" + "=" * 40)
