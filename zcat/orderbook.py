@@ -21,7 +21,7 @@ class Price(float):
         self.value = value
 
     def __repr__(self):
-        return "%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s(%.8f)" % (self.__class__.__name__, self.value)
         
     def __neg__(self):
         return Price(-self.value)
@@ -41,7 +41,7 @@ class Amount(float):
         self.value = value
 
     def __repr__(self):
-        return "%s('%.8f')" % (self.__class__.__name__, self.value)
+        return "%s(%.8f)" % (self.__class__.__name__, self.value)
     
     def __neg__(self):
         return Amount(-self.value)
@@ -65,6 +65,8 @@ class Order(object):
         
     def __repr__(self):
         return "%s: %s\n" % (self.side, self.order)
+    # def __str__(self):
+    #     return "%s: %s" % (self.side, self.order)
         
     def __contains__(self, price):
         """Runtime complexity: `O(1)`
@@ -169,7 +171,10 @@ class OrderBook(dict):
         super().__init__({pair: {ASK: self.asks, BID: self.bids}})
     
     def __repr__(self):
-        return repr((self.bids, self.asks))
+        return "%s\n%s\n" % (self.bids, self.asks)
+    # def __str__(self):
+    #     return "%s: %s" % (self.bids, self.asks)
+    
     
     def update(self, side, price, amount):
         """매수, 매도에 관계없이 인-메모리 오더북의 주문을 갱신한다.

@@ -2,7 +2,6 @@ import asyncio
 from kraken import Kraken
 from bitfinex import Bitfinex
 
-
 def main(pair='BTC/USD'):
     feeds = []
     for exchange in [Kraken, Bitfinex]:
@@ -17,3 +16,4 @@ def main(pair='BTC/USD'):
         
 if __name__ == "__main__":
     main()
+    

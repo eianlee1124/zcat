@@ -31,7 +31,7 @@ class WebSocketAPI(object):
         self.l2_book = OrderBook(pair)
         
     def __repr__(self):
-        return "%s" % self.stores
+        return pformat(self.stores)
         
     @property
     def name(self):
